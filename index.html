@@ -92,6 +92,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#lecturas-cortas-con-fastqc" id="toc-lecturas-cortas-con-fastqc" class="nav-link" data-scroll-target="#lecturas-cortas-con-fastqc"><strong>Lecturas cortas con FastQC</strong></a></li>
   </ul></li>
   <li><a href="#nanoplot" id="toc-nanoplot" class="nav-link" data-scroll-target="#nanoplot">NanoPlot</a></li>
+  <li><a href="#filtrado-de-lecturas-largas" id="toc-filtrado-de-lecturas-largas" class="nav-link" data-scroll-target="#filtrado-de-lecturas-largas">Filtrado de lecturas largas</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -200,7 +201,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="nanoplot" class="level2">
 <h2 class="anchored" data-anchor-id="nanoplot">NanoPlot</h2>
-<p>Lecturas largas</p>
+<p>Lecturas largas (Nanopore)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">NanoPlot</span> <span class="dt">\</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>-t 6 <span class="dt">\</span></span>
@@ -216,7 +217,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="images/ONT_LengthvsQualityScatterPlot_kde.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
-<p>Lecturas cortas</p>
+<p>Lecturas cortas (Ilumina)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">NanoPlot</span> <span class="dt">\</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>-t 6 <span class="dt">\</span></span>
@@ -231,6 +232,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <figure class="figure">
 <p><img src="images/ilumina_LengthvsQualityScatterPlot_kde.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
+</div>
+</section>
+<section id="filtrado-de-lecturas-largas" class="level2">
+<h2 class="anchored" data-anchor-id="filtrado-de-lecturas-largas">Filtrado de lecturas largas</h2>
+<p>Una herramienta que nos permite filtrar lecturas largas de alta calidad y de gran longitud es <code>FitLong</code>, lo puedes descargar e instalar <a href="https://github.com/rrwick/Filtlong">aquí</a>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/2_filter</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">filtlong</span> <span class="dt">\</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>--keep_percent 95 <span class="dt">\</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>data/SRR30483153.fastq <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span> 2_filter/SRR30483153.fastq.gz</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>

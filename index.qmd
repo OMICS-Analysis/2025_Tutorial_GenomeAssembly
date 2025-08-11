@@ -93,7 +93,7 @@ Reverse
 
 ## NanoPlot
 
-Lecturas largas
+Lecturas largas (Nanopore)
 
 ```{bash, eval=FALSE}
 NanoPlot \
@@ -108,7 +108,7 @@ NanoPlot \
 
 ![](images/ONT_LengthvsQualityScatterPlot_kde.png){fig-align="center"}
 
-Lecturas cortas
+Lecturas cortas (Ilumina)
 
 ```{bash, eval=FALSE}
 NanoPlot \
@@ -122,3 +122,15 @@ NanoPlot \
 ```
 
 ![](images/ilumina_LengthvsQualityScatterPlot_kde.png){fig-align="center"}
+
+## Filtrado de lecturas largas
+
+Una herramienta que nos permite filtrar lecturas largas de alta calidad y de gran longitud es `FitLong`, lo puedes descargar e instalar [aquí](https://github.com/rrwick/Filtlong).
+
+```{bash, eval=FALSE}
+mkdir 2025_Demo_Assembly/2_filter
+
+filtlong \
+--keep_percent 95 \
+data/SRR30483153.fastq | gzip > 2_filter/SRR30483153.fastq.gz
+```
