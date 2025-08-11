@@ -1,0 +1,4 @@
+6_polypolish/polished.fasta	GCF_018885085.1_reference.fna	96.2735	1208	1310
+6_polypolish/polished.fasta	GCF_000953275.1.fna	96.2656	1209	1310
+6_polypolish/polished.fasta	GCF_049201125.1.fna	96.2608	1207	1310
+6_polypolish/polished.fasta	GCF_049244755.1.fna	96.2395	1192	1310

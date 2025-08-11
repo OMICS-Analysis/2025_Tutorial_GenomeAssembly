@@ -504,7 +504,36 @@ df[1,1] <- "Flye assembly"
 gt::gt(df)
 ```
 
+Incluye un reporte detallado en `HTML`
+
+![](images/quast_intefaz.png){fig-align="center"}
+
 ## ANI
+
+Para calcular el Average Nucleotide Identity (ANI) vamos a utilizar la herramienta `FastANI`, lo puedes descargar [aquí](https://github.com/ParBLiSS/FastANI). Para ello además del genoma de referencia, vamos a descargar los ensambles de 3 cepas distintas de *C. difficile* ([DSM 29697](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_049201125.1/), [630Derm](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000953275.1/), [DSM 29630](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_049244755.1/))*,* esta lista `c_difficile_genomes.txt` se ve del siguiente modo:
+
+```{bash, eval=FALSE}
+~/2025_Demo_assembly/data/c_difficile/GCF_000953275.1.fna
+~/2025_Demo_assembly/data/c_difficile/GCF_018885085.1_reference.fna
+~/2025_Demo_assembly/data/c_difficile/GCF_049201125.1.fna
+~/2025_Demo_assembly/data/c_difficile/GCF_049244755.1.fna
+```
+
+```{bash, eval=FALSE}
+./bin/FastANI/build/fastANI \
+-q 6_polypolish/polished.fasta \
+--rl data/c_difficile/c_difficile_genomes.txt \
+--matrix \
+-o 7_assemblyQC/fastani.txt
+```
+
+Genera un este resultado:
+
+```{r, echo=FALSE, message=FALSE}
+df <- readr::read_tsv("tables/fastani.txt", col_names = c("Query Assembly", "Reference", "ANI", "Fragmentos alineado", "Total de Fragmentos"))
+
+gt::gt(df)
+```
 
 ## CheckM
 
