@@ -477,9 +477,36 @@ medaka_consensus \
 
 # 7. Calidad del ensamble
 
-```{bash, eval=FALSE}
+## Quast
 
+Para evaluar la calidad de emsamble vamos a utilizar `Quast`, lo puedes descargar [aquí](https://quast.sourceforge.net/docs/manual.html#sec1).
+
+Para este punto es necesario descargar el genoma de referencia y su anotación para que exista un punto de comparación. Para ello utilizamos la cepa [`S-0253`](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_018885085.1/).
+
+```{bash, eval=FALSE}
+python bin/quast/quast.py \
+-o 7_assemblyQC \
+-r data/GCF_018885085.1_reference.fna \
+-g data/reference_genomic.gff \
+-t 6 6_polypolish/polished.fasta
 ```
+
+Esta herramienta nos permite obtener estas métricas.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+df1 <- readr::read_tsv("tables/flye_transposed_report.tsv")
+df2 <- readr::read_tsv("tables/polish_transposed_report.tsv")
+
+df <- rbind(df1, df2)
+df[1,1] <- "Flye assembly"
+
+gt::gt(df)
+```
+
+## ANI
+
+## CheckM
 
 # Extra: Bandage
 
