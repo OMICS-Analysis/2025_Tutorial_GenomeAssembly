@@ -406,7 +406,7 @@ Ahora vamos a pulir el ensamblaje de lecturas largas generado por `Flye` con lec
 
 Para ello también vamos a necesitar instalar un alienador de lecturas cortas `bwa`, [aquí](https://github.com/lh3/bwa) lo puedes descargar.
 
-## bwa
+### bwa
 
 ```{bash, eval=FALSE}
 ./bin/bwa/bwa index 5_flye/assembly.fasta
@@ -430,7 +430,7 @@ mkdir 2025_Demo_Assembly/6_polypolish
 -a 5_flye/assembly.fasta data/SRR30483121_2.fastq > 6_polypolish/alignments_2.sam
 ```
 
-## Polypolish
+### Polypolish
 
 El siguiente código filtra alineamientos SAM (asumidos generados por BWA o similar con lecturas cortas) para retener solo aquellos con múltiples mapeos en extremos de contigs, ideales para corregir indels en regiones repetitivas. Produce SAM filtrados para el pulido.
 

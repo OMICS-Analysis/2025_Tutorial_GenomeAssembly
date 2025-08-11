@@ -128,9 +128,11 @@ window.Quarto = {
   <li><a href="#ensamble-de-lecturas-largas" id="toc-ensamble-de-lecturas-largas" class="nav-link" data-scroll-target="#ensamble-de-lecturas-largas">5. Ensamble de lecturas largas</a></li>
   <li><a href="#pulido" id="toc-pulido" class="nav-link" data-scroll-target="#pulido">6. Pulido</a>
   <ul class="collapse">
-  <li><a href="#pulido-con-lecturas-cortas" id="toc-pulido-con-lecturas-cortas" class="nav-link" data-scroll-target="#pulido-con-lecturas-cortas">Pulido con lecturas cortas</a></li>
+  <li><a href="#pulido-con-lecturas-cortas" id="toc-pulido-con-lecturas-cortas" class="nav-link" data-scroll-target="#pulido-con-lecturas-cortas">Pulido con lecturas cortas</a>
+  <ul class="collapse">
   <li><a href="#bwa" id="toc-bwa" class="nav-link" data-scroll-target="#bwa">bwa</a></li>
   <li><a href="#polypolish" id="toc-polypolish" class="nav-link" data-scroll-target="#polypolish">Polypolish</a></li>
+  </ul></li>
   <li><a href="#pulido-con-lecturas-largas" id="toc-pulido-con-lecturas-largas" class="nav-link" data-scroll-target="#pulido-con-lecturas-largas">Pulido con lecturas largas</a></li>
   </ul></li>
   <li><a href="#calidad-del-ensamble" id="toc-calidad-del-ensamble" class="nav-link" data-scroll-target="#calidad-del-ensamble">Calidad del ensamble</a></li>
@@ -541,9 +543,8 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="pulido-con-lecturas-cortas">Pulido con lecturas cortas</h2>
 <p>Ahora vamos a pulir el ensamblaje de lecturas largas generado por <code>Flye</code> con lecturas cortas Illumina <code>.fastq</code> utilizando <code>Polypolish v0.6.0</code>, lo que da como resultado un nuevo archivo de ensamblaje híbrido pulido <code>.fasta</code>, esta herramienta la puedes descargar <a href="https://github.com/rrwick/Polypolish/wiki/Installation">aquí</a>.</p>
 <p>Para ello también vamos a necesitar instalar un alienador de lecturas cortas <code>bwa</code>, <a href="https://github.com/lh3/bwa">aquí</a> lo puedes descargar.</p>
-</section>
-<section id="bwa" class="level2">
-<h2 class="anchored" data-anchor-id="bwa">bwa</h2>
+<section id="bwa" class="level3">
+<h3 class="anchored" data-anchor-id="bwa">bwa</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/bwa/bwa</span> index 5_flye/assembly.fasta</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -562,8 +563,8 @@ window.Quarto = {
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>-a 5_flye/assembly.fasta data/SRR30483121_2.fastq <span class="op">&gt;</span> 6_polypolish/alignments_2.sam</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="polypolish" class="level2">
-<h2 class="anchored" data-anchor-id="polypolish">Polypolish</h2>
+<section id="polypolish" class="level3">
+<h3 class="anchored" data-anchor-id="polypolish">Polypolish</h3>
 <p>El siguiente código filtra alineamientos SAM (asumidos generados por BWA o similar con lecturas cortas) para retener solo aquellos con múltiples mapeos en extremos de contigs, ideales para corregir indels en regiones repetitivas. Produce SAM filtrados para el pulido.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/Polypolish/target/release/polypolish</span> filter <span class="dt">\</span></span>
@@ -579,6 +580,7 @@ window.Quarto = {
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>6_polypolish/filtered_1.sam <span class="dt">\</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>6_polypolish/filtered_2.sam <span class="op">&gt;</span> 6_polypolish/polished.fasta</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
 </section>
 <section id="pulido-con-lecturas-largas" class="level2">
 <h2 class="anchored" data-anchor-id="pulido-con-lecturas-largas">Pulido con lecturas largas</h2>
