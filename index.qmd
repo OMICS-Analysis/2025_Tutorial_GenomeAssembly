@@ -164,7 +164,7 @@ Para este paso necesitamos generar código que nos permita re-muestrear basado e
 
 Primero vamos a generar un código en Python que nos ayudará a lograr, llamaremos a este archivo `weighted_downsample.py`
 
-Este script realiza un **muestreo aleatorio ponderado sin reemplazo** de lecturas FASTQ para reducir a un número objetivo de bases (--target-bases), priorizando lecturas largas y de alta calidad. Usa pesos = longitud \* (calidad_media + 1)\^--qpower (default 2). Preserva lecturas específicas via --keep-ids. Es eficiente para datasets grandes, usando temporales y sort externo.
+Este script realiza un **muestreo aleatorio ponderado sin reemplazo** de lecturas FASTQ para reducir a un número objetivo de bases (`--target-bases`), priorizando lecturas largas y de alta calidad. Usa $\text{pesos} = \text{longitud}\cdot(\text{calidad\_media}+1)^{qpower}$ (`--qpower` default 2). Preserva lecturas específicas via `--keep-ids`. Es eficiente para datasets grandes, usando temporales y sort externo.
 
 ```{python, eval=FALSE}
 #!/usr/bin/env python3
@@ -379,4 +379,66 @@ python3 weighted_downsample.py \
   --qpower 2.0 \
   --seed 42 \
   --keep-ids "$OUTDIR/keep_ids.txt"
+```
+
+# 5. Ensamble de lecturas largas
+
+Para este punto vamos a utilizar a `Flye`, lo puedes descargar de [aquí](https://github.com/mikolmogorov/Flye).
+
+`Flye` es un ensamblador de novo optimizado para lecturas largas y ruidosas (e.g., Oxford Nanopore o PacBio), para generar un ensamblaje genómico a partir de lecturas filtradas y downsampleadas. `Flye` emplea un enfoque basado en grafo de repeticiones (repeat graph) para resolver regiones complejas, produciendo contigs pulidos y un grafo de ensamblaje.
+
+```{bash, eval=FALSE}
+mkdir 2025_Demo_Assembly/5_flye
+
+flye \
+--nano-hq 4_downsample_SRR30483153_weighted/reads_approx_100x.weighted.fastq.gz \
+--out-dir 5_flye \
+--threads 6
+```
+
+# 6. Pulido
+
+Ahora vamos a pulir el ensamblaje de lecturas largas generado por `Flye` con lecturas cortas Illumina `.fastq` utilizando `Polypolish v0.6.0`, lo que da como resultado un nuevo archivo de ensamblaje híbrido pulido `.fasta`, esta herramienta la puedes descargar [aquí](https://github.com/rrwick/Polypolish/wiki/Installation).
+
+Para ello también vamos a necesitar instalar un alienador de lecturas cortas `bwa`, [aquí](https://github.com/lh3/bwa) lo puedes descargar.
+
+## bwa
+
+```{bash, eval=FALSE}
+./bin/bwa/bwa index 5_flye/assembly.fasta
+```
+
+**Forward**
+
+```{bash, eval=FALSE}
+mkdir 2025_Demo_Assembly/6_polypolish
+
+./bin/bwa/bwa mem \
+-t 6 \
+-a 5_flye/assembly.fasta data/SRR30483121_1.fastq > 6_polypolish/alignments_1.sam
+```
+
+**Reverse**
+
+```{bash, eval=FALSE}
+./bin/bwa/bwa mem \
+-t 6 \
+-a 5_flye/assembly.fasta data/SRR30483121_2.fastq > 6_polypolish/alignments_2.sam
+```
+
+## Polypolish
+
+```{bash, eval=FALSE}
+./bin/Polypolish/target/release/polypolish filter \
+--in1 6_polypolish/alignments_1.sam \
+--in2 6_polypolish/alignments_2.sam \
+--out1 6_polypolish/filtered_1.sam \
+--out2 6_polypolish/filtered_2.sam
+```
+
+```{bash, eval=FALSE}
+./bin/Polypolish/target/release/polypolish polish \
+5_flye/assembly.fasta \
+6_polypolish/filtered_1.sam \
+6_polypolish/filtered_2.sam > 6_polypolish/polished.fasta
 ```

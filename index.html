@@ -69,6 +69,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="index_files/libs/bootstrap/bootstrap-93c0463f95dbdd7f1397c0dcb1e221e6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -96,6 +125,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#filtrado-de-lecturas-largas" id="toc-filtrado-de-lecturas-largas" class="nav-link" data-scroll-target="#filtrado-de-lecturas-largas">2. Filtrado de lecturas largas</a></li>
   <li><a href="#crear-un-boceto-aproximado-del-ensamblaje" id="toc-crear-un-boceto-aproximado-del-ensamblaje" class="nav-link" data-scroll-target="#crear-un-boceto-aproximado-del-ensamblaje">3. Crear un boceto aproximado del ensamblaje</a></li>
   <li><a href="#re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x." id="toc-re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x." class="nav-link" data-scroll-target="#re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x.">4. Re-muestrear la resolución de las lecturas a una cobertura de ~100x.</a></li>
+  <li><a href="#ensamble-de-lecturas-largas" id="toc-ensamble-de-lecturas-largas" class="nav-link" data-scroll-target="#ensamble-de-lecturas-largas">5. Ensamble de lecturas largas</a></li>
+  <li><a href="#pulido" id="toc-pulido" class="nav-link" data-scroll-target="#pulido">6. Pulido</a>
+  <ul class="collapse">
+  <li><a href="#bwa" id="toc-bwa" class="nav-link" data-scroll-target="#bwa">bwa</a></li>
+  <li><a href="#polypolish" id="toc-polypolish" class="nav-link" data-scroll-target="#polypolish">Polypolish</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -269,7 +304,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>4. Re-muestrear la resolución de las lecturas a una cobertura de ~100x.</h1>
 <p>Para este paso necesitamos generar código que nos permita re-muestrear basado en la cobertura y la calidad de las lecturas largas.</p>
 <p>Primero vamos a generar un código en Python que nos ayudará a lograr, llamaremos a este archivo <code>weighted_downsample.py</code></p>
-<p>Este script realiza un <strong>muestreo aleatorio ponderado sin reemplazo</strong> de lecturas FASTQ para reducir a un número objetivo de bases (–target-bases), priorizando lecturas largas y de alta calidad. Usa pesos = longitud * (calidad_media + 1)^–qpower (default 2). Preserva lecturas específicas via –keep-ids. Es eficiente para datasets grandes, usando temporales y sort externo.</p>
+<p>Este script realiza un <strong>muestreo aleatorio ponderado sin reemplazo</strong> de lecturas FASTQ para reducir a un número objetivo de bases (<code>--target-bases</code>), priorizando lecturas largas y de alta calidad. Usa <span class="math inline">\(\text{pesos} = \text{longitud}\cdot(\text{calidad\_media}+1)^{qpower}\)</span> (<code>--qpower</code> default 2). Preserva lecturas específicas via <code>--keep-ids</code>. Es eficiente para datasets grandes, usando temporales y sort externo.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env python3</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
@@ -482,6 +517,60 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 42 <span class="dt">\</span></span>
 <span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">--keep-ids</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/keep_ids.txt"</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="ensamble-de-lecturas-largas" class="level1">
+<h1>5. Ensamble de lecturas largas</h1>
+<p>Para este punto vamos a utilizar a <code>Flye</code>, lo puedes descargar de <a href="https://github.com/mikolmogorov/Flye">aquí</a>.</p>
+<p><code>Flye</code> es un ensamblador de novo optimizado para lecturas largas y ruidosas (e.g., Oxford Nanopore o PacBio), para generar un ensamblaje genómico a partir de lecturas filtradas y downsampleadas. <code>Flye</code> emplea un enfoque basado en grafo de repeticiones (repeat graph) para resolver regiones complejas, produciendo contigs pulidos y un grafo de ensamblaje.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/5_flye</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">flye</span> <span class="dt">\</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>--nano-hq 4_downsample_SRR30483153_weighted/reads_approx_100x.weighted.fastq.gz <span class="dt">\</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>--out-dir 5_flye <span class="dt">\</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>--threads 6</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="pulido" class="level1">
+<h1>6. Pulido</h1>
+<p>Ahora vamos a pulir el ensamblaje de lecturas largas generado por <code>Flye</code> con lecturas cortas Illumina <code>.fastq</code> utilizando <code>Polypolish v0.6.0</code>, lo que da como resultado un nuevo archivo de ensamblaje híbrido pulido <code>.fasta</code>, esta herramienta la puedes descargar <a href="https://github.com/rrwick/Polypolish/wiki/Installation">aquí</a>.</p>
+<p>Para ello también vamos a necesitar instalar un alienador de lecturas cortas <code>bwa</code>, <a href="https://github.com/lh3/bwa">aquí</a> lo puedes descargar.</p>
+<section id="bwa" class="level2">
+<h2 class="anchored" data-anchor-id="bwa">bwa</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/bwa/bwa</span> index 5_flye/assembly.fasta</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Forward</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/6_polypolish</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/bwa/bwa</span> mem <span class="dt">\</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>-t 6 <span class="dt">\</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>-a 5_flye/assembly.fasta data/SRR30483121_1.fastq <span class="op">&gt;</span> 6_polypolish/alignments_1.sam</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Reverse</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/bwa/bwa</span> mem <span class="dt">\</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>-t 6 <span class="dt">\</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>-a 5_flye/assembly.fasta data/SRR30483121_2.fastq <span class="op">&gt;</span> 6_polypolish/alignments_2.sam</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="polypolish" class="level2">
+<h2 class="anchored" data-anchor-id="polypolish">Polypolish</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/Polypolish/target/release/polypolish</span> filter <span class="dt">\</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>--in1 6_polypolish/alignments_1.sam <span class="dt">\</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>--in2 6_polypolish/alignments_2.sam <span class="dt">\</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>--out1 6_polypolish/filtered_1.sam <span class="dt">\</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>--out2 6_polypolish/filtered_2.sam</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/Polypolish/target/release/polypolish</span> polish <span class="dt">\</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>5_flye/assembly.fasta <span class="dt">\</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>6_polypolish/filtered_1.sam <span class="dt">\</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>6_polypolish/filtered_2.sam <span class="op">&gt;</span> 6_polypolish/polished.fasta</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 </section>
 
 </main>
