@@ -14,6 +14,42 @@ lang: es
 
 ![](images/logo_OAN_for_white.png){fig-align="center" width="300"}
 
-## Introducción
+# Introducción
 
 Para este tutorial vamos a ensamblar un Genoma usando lecturas largas y cortas. Vamos a trabajar con secuencias de *Clostridioides difficile.*
+
+Los siguientes pasos se realizaron utilizando una máquina `Gigabyte Technology Co., Ltd. H67MA-USB3-B3` con procesador `Intel® Core™ i7-2600 CPU @ 3.40GHz × 8` y 32 Gb de RAM. Con sistema Operativo `Ubuntu 22.04.5 LTS`.
+
+Para todos los procesos se generó un directorio con la siguiente estructura:
+
+```{bash, eval=FALSE}
+2025_Demo_Assembly/
+├── bin/
+└── data/
+```
+
+Para cada pasó se irá generando un carpeta dentro del directorio `2025_Demo_Assembly`.
+
+# 1. Obtención de lecturas
+
+En este paso vamos a utilizar `sratoolkit`, lo puedes descargar [aquí](https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit) según sea tu sistema operativo.
+
+Los datos los vamos a descargar del BioProject [`PRJNA1148956`](https://www.ncbi.nlm.nih.gov/bioproject?LinkName=sra_bioproject&from_uid=34977980) **"Comparative study of Illumina and Nanopore sequencing for Clostridioides difficile surveillance"**. Para fines demostrativos vamos a descargar lecturas largas (Nanopore) y lecturas cortas pareadas (Ilumina).
+
+Para hacerlo usa el siguiente código en la terminal:
+
+**Lecturas largas**
+
+```{bash, eval=FALSE}
+cd data
+prefetch SRR30483153
+fasterq-dump SRR30483153
+```
+
+**Lecturas cortas**
+
+```{bash, eval=FALSE}
+cd data
+prefetch SRR30483121
+fasterq-dump SRR30483121
+```

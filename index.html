@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -47,6 +81,7 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#obtención-de-lecturas" id="toc-obtención-de-lecturas" class="nav-link" data-scroll-target="#obtención-de-lecturas">1. Obtención de lecturas</a></li>
   </ul>
 </nav>
 </div>
@@ -82,9 +117,35 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="images/logo_OAN_for_white.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="300"></p>
 </figure>
 </div>
-<section id="introducción" class="level2">
-<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<section id="introducción" class="level1">
+<h1>Introducción</h1>
 <p>Para este tutorial vamos a ensamblar un Genoma usando lecturas largas y cortas. Vamos a trabajar con secuencias de <em>Clostridioides difficile.</em></p>
+<p>Los siguientes pasos se realizaron utilizando una máquina <code>Gigabyte Technology Co., Ltd. H67MA-USB3-B3</code> con procesador <code>Intel® Core™ i7-2600 CPU @ 3.40GHz × 8</code> y 32 Gb de RAM. Con sistema Operativo <code>Ubuntu 22.04.5 LTS</code>.</p>
+<p>Para todos los procesos se generó un directorio con la siguiente estructura:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">2025_Demo_Assembly/</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> bin/</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> data/</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Para cada pasó se irá generando un carpeta dentro del directorio <code>2025_Demo_Assembly</code>.</p>
+</section>
+<section id="obtención-de-lecturas" class="level1">
+<h1>1. Obtención de lecturas</h1>
+<p>En este paso vamos a utilizar <code>sratoolkit</code>, lo puedes descargar <a href="https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit">aquí</a> según sea tu sistema operativo.</p>
+<p>Los datos los vamos a descargar del BioProject <a href="https://www.ncbi.nlm.nih.gov/bioproject?LinkName=sra_bioproject&amp;from_uid=34977980"><code>PRJNA1148956</code></a> <strong>“Comparative study of Illumina and Nanopore sequencing for Clostridioides difficile surveillance”</strong>. Para fines demostrativos vamos a descargar lecturas largas (Nanopore) y lecturas cortas pareadas (Ilumina).</p>
+<p>Para hacerlo usa el siguiente código en la terminal:</p>
+<p><strong>Lecturas largas</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> data</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">prefetch</span> SRR30483153</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">fasterq-dump</span> SRR30483153</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Lecturas cortas</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> data</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">prefetch</span> SRR30483121</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">fasterq-dump</span> SRR30483121</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 
 </main>
