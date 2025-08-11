@@ -475,4 +475,8 @@ medaka_consensus \
 -t 6
 ```
 
-# Calidad del ensamble
+# 7. Calidad del ensamble
+
+```{bash}
+
+```
