@@ -129,7 +129,7 @@ NanoPlot \
 
 Una herramienta que nos permite filtrar lecturas largas de alta calidad y de gran longitud es `FiltLong`, lo puedes descargar e instalar [aquí](https://github.com/rrwick/Filtlong).
 
-Vamos a eliminar el 5 % inferior de las lecturas fastq peores.
+`Filtlong` lo usamos para filtrar lecturas largas basadas en calidad y longitud, reteniendo el 95% de las bases de mayor calidad (es decir, descartando el 5% peor). Sin referencias externas (como lecturas cortas de Illumina), se basa en las puntuaciones de calidad Phred del archivo FASTQ para evaluar las lecturas. El resultado se envía a stdout, se comprime con gzip y se guarda en un archivo FASTQ.gz, preparando las lecturas filtradas para pasos posteriores como el alineamiento con minimap2.
 
 ```{bash, eval=FALSE}
 mkdir 2025_Demo_Assembly/2_filter
@@ -163,6 +163,14 @@ bin/miniasm/miniasm \
 Para este paso necesitamos generar código que nos permita re-muestrear basado en la cobertura y la calidad de las lecturas largas.
 
 Primero vamos a generar un código en Python que nos ayudará a lograr, llamaremos a este archivo `weighted_downsample.py`
+
+Thought for 58s
+
+# Tutorial Breve: Muestreo Ponderado de Lecturas FASTQ para Ensamblaje Genómico
+
+Este tutorial explica concisamente dos scripts: un Python para muestreo ponderado de lecturas largas basado en calidad, y un Bash para preparar y ejecutar dicho muestreo ajustado a cobertura objetivo (e.g., 100x) en un ensamblaje.
+
+Este script realiza un **muestreo aleatorio ponderado sin reemplazo** de lecturas FASTQ para reducir a un número objetivo de bases (--target-bases), priorizando lecturas largas y de alta calidad. Usa pesos = longitud \* (calidad_media + 1)\^--qpower (default 2). Preserva lecturas específicas via --keep-ids. Es eficiente para datasets grandes, usando temporales y sort externo.
 
 ```{python, eval=FALSE}
 #!/usr/bin/env python3
@@ -332,10 +340,10 @@ if __name__ == '__main__':
     main()
 ```
 
-Y otro archivo en bash al que llamaremos `RUN_sample_100x.sh`.
+Y otro archivo en `bash` al que llamaremos `RUN_sample_100x.sh`, este script Bash calcula bases objetivo para \~100x cobertura basada en un ensamblaje GFA, genera IDs a preservar (lecturas mapeadas a contigs pequeños, e.g., plásmidos \<10k bp), y ejecuta el script Python para downsampling.
 
 ```{bash, eval=FALSE}
-# variables (ajusta rutas/hilos si quieres)
+# variables 
 READS="2_filter/SRR30483153.fastq.gz"
 GFA="3_miniasm/SRR30483153.gfa"
 TARGET_COV=100
@@ -359,7 +367,7 @@ if [ "$CURR_BASES" -le "$TARGET_BASES" ] ; then
 fi
 
 # (opcional) generar keep_ids si quieres preservar lecturas que mapearon a contigs pequeños
-# aquí supongo PLASMID_THRESHOLD=10000 como antes
+# PLASMID_THRESHOLD=10000 
 PLASMID_THRESHOLD=10000
 awk '/^S/ { if($3=="*" || $3=="") seq=""; else seq=$3; print ">"$2"\n"seq }' "$GFA" > "$OUTDIR/assembly.fa"
 minimap2 -t 8 -ax map-ont "$OUTDIR/assembly.fa" "$READS" | samtools view -F 4 -h - > "$OUTDIR/mappings.sam"
@@ -368,7 +376,7 @@ awk -v TH="$PLASMID_THRESHOLD" '$2 < TH {print $1}' "$OUTDIR/contig_lengths.tsv"
 awk 'NR==FNR{a[$1]; next} !/^@/ && ($3 in a){ print $1 }' "$OUTDIR/small_contigs.txt" "$OUTDIR/mappings.sam" | sort -u > "$OUTDIR/keep_ids.txt"
 echo "Keep IDs: $(wc -l < "$OUTDIR/keep_ids.txt")"
 
-# ejecutar el script (ajusta qpower si quieres)
+# ejecutar el script
 python3 weighted_downsample.py \
   --reads "$READS" \
   --target-bases "$TARGET_BASES" \

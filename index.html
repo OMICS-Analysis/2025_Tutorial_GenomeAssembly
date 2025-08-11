@@ -96,6 +96,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#filtrado-de-lecturas-largas" id="toc-filtrado-de-lecturas-largas" class="nav-link" data-scroll-target="#filtrado-de-lecturas-largas">2. Filtrado de lecturas largas</a></li>
   <li><a href="#crear-un-boceto-aproximado-del-ensamblaje" id="toc-crear-un-boceto-aproximado-del-ensamblaje" class="nav-link" data-scroll-target="#crear-un-boceto-aproximado-del-ensamblaje">3. Crear un boceto aproximado del ensamblaje</a></li>
   <li><a href="#re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x." id="toc-re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x." class="nav-link" data-scroll-target="#re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x.">4. Re-muestrear la resolución de las lecturas a una cobertura de ~100x.</a></li>
+  <li><a href="#tutorial-breve-muestreo-ponderado-de-lecturas-fastq-para-ensamblaje-genómico" id="toc-tutorial-breve-muestreo-ponderado-de-lecturas-fastq-para-ensamblaje-genómico" class="nav-link" data-scroll-target="#tutorial-breve-muestreo-ponderado-de-lecturas-fastq-para-ensamblaje-genómico">Tutorial Breve: Muestreo Ponderado de Lecturas FASTQ para Ensamblaje Genómico</a></li>
   </ul>
 </nav>
 </div>
@@ -241,7 +242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="filtrado-de-lecturas-largas" class="level1">
 <h1>2. Filtrado de lecturas largas</h1>
 <p>Una herramienta que nos permite filtrar lecturas largas de alta calidad y de gran longitud es <code>FiltLong</code>, lo puedes descargar e instalar <a href="https://github.com/rrwick/Filtlong">aquí</a>.</p>
-<p>Vamos a eliminar el 5 % inferior de las lecturas fastq peores.</p>
+<p><code>Filtlong</code> lo usamos para filtrar lecturas largas basadas en calidad y longitud, reteniendo el 95% de las bases de mayor calidad (es decir, descartando el 5% peor). Sin referencias externas (como lecturas cortas de Illumina), se basa en las puntuaciones de calidad Phred del archivo FASTQ para evaluar las lecturas. El resultado se envía a stdout, se comprime con gzip y se guarda en un archivo FASTQ.gz, preparando las lecturas filtradas para pasos posteriores como el alineamiento con minimap2.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/2_filter</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -269,6 +270,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>4. Re-muestrear la resolución de las lecturas a una cobertura de ~100x.</h1>
 <p>Para este paso necesitamos generar código que nos permita re-muestrear basado en la cobertura y la calidad de las lecturas largas.</p>
 <p>Primero vamos a generar un código en Python que nos ayudará a lograr, llamaremos a este archivo <code>weighted_downsample.py</code></p>
+<p>Thought for 58s</p>
+</section>
+<section id="tutorial-breve-muestreo-ponderado-de-lecturas-fastq-para-ensamblaje-genómico" class="level1">
+<h1>Tutorial Breve: Muestreo Ponderado de Lecturas FASTQ para Ensamblaje Genómico</h1>
+<p>Este tutorial explica concisamente dos scripts: un Python para muestreo ponderado de lecturas largas basado en calidad, y un Bash para preparar y ejecutar dicho muestreo ajustado a cobertura objetivo (e.g., 100x) en un ensamblaje.</p>
+<p>Este script realiza un <strong>muestreo aleatorio ponderado sin reemplazo</strong> de lecturas FASTQ para reducir a un número objetivo de bases (–target-bases), priorizando lecturas largas y de alta calidad. Usa pesos = longitud * (calidad_media + 1)^–qpower (default 2). Preserva lecturas específicas via –keep-ids. Es eficiente para datasets grandes, usando temporales y sort externo.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env python3</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
@@ -436,9 +443,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-164"><a href="#cb11-164" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">'__main__'</span>:</span>
 <span id="cb11-165"><a href="#cb11-165" aria-hidden="true" tabindex="-1"></a>    main()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Y otro archivo en bash al que llamaremos <code>RUN_sample_100x.sh</code>.</p>
+<p>Y otro archivo en <code>bash</code> al que llamaremos <code>RUN_sample_100x.sh</code>, este script Bash calcula bases objetivo para ~100x cobertura basada en un ensamblaje GFA, genera IDs a preservar (lecturas mapeadas a contigs pequeños, e.g., plásmidos &lt;10k bp), y ejecuta el script Python para downsampling.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># variables (ajusta rutas/hilos si quieres)</span></span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># variables </span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="va">READS</span><span class="op">=</span><span class="st">"2_filter/SRR30483153.fastq.gz"</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="va">GFA</span><span class="op">=</span><span class="st">"3_miniasm/SRR30483153.gfa"</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="va">TARGET_COV</span><span class="op">=</span>100</span>
@@ -462,7 +469,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co"># (opcional) generar keep_ids si quieres preservar lecturas que mapearon a contigs pequeños</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co"># aquí supongo PLASMID_THRESHOLD=10000 como antes</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co"># PLASMID_THRESHOLD=10000 </span></span>
 <span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="va">PLASMID_THRESHOLD</span><span class="op">=</span>10000</span>
 <span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'/^S/ { if($3=="*" || $3=="") seq=""; else seq=$3; print "&gt;"$2"\n"seq }'</span> <span class="st">"</span><span class="va">$GFA</span><span class="st">"</span> <span class="op">&gt;</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/assembly.fa"</span></span>
 <span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="ex">minimap2</span> <span class="at">-t</span> 8 <span class="at">-ax</span> map-ont <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/assembly.fa"</span> <span class="st">"</span><span class="va">$READS</span><span class="st">"</span> <span class="kw">|</span> <span class="ex">samtools</span> view <span class="at">-F</span> 4 <span class="at">-h</span> <span class="at">-</span> <span class="op">&gt;</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/mappings.sam"</span></span>
@@ -471,7 +478,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'NR==FNR{a[$1]; next} !/^@/ &amp;&amp; ($3 in a){ print $1 }'</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/small_contigs.txt"</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/mappings.sam"</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-u</span> <span class="op">&gt;</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/keep_ids.txt"</span></span>
 <span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"Keep IDs: </span><span class="va">$(</span><span class="fu">wc</span> <span class="at">-l</span> <span class="op">&lt;</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/keep_ids.txt"</span><span class="va">)</span><span class="st">"</span></span>
 <span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># ejecutar el script (ajusta qpower si quieres)</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># ejecutar el script</span></span>
 <span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> weighted_downsample.py <span class="dt">\</span></span>
 <span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">--reads</span> <span class="st">"</span><span class="va">$READS</span><span class="st">"</span> <span class="dt">\</span></span>
 <span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">--target-bases</span> <span class="st">"</span><span class="va">$TARGET_BASES</span><span class="st">"</span> <span class="dt">\</span></span>
