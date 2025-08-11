@@ -28,6 +28,8 @@ Para todos los procesos se generó un directorio con la siguiente estructura:
 └── data/
 ```
 
+**IMPORTANTE ⚠️**: Todas las herramientas que se vayan instalando se van a alojar en el directorio `2025_Demo_Assembly/bin`.
+
 Para cada pasó se irá generando un carpeta dentro del directorio `2025_Demo_Assembly`.
 
 ## Obtención de lecturas
@@ -123,9 +125,11 @@ NanoPlot \
 
 ![](images/ilumina_LengthvsQualityScatterPlot_kde.png){fig-align="center"}
 
-## Filtrado de lecturas largas
+# 2. Filtrado de lecturas largas
 
 Una herramienta que nos permite filtrar lecturas largas de alta calidad y de gran longitud es `FitLong`, lo puedes descargar e instalar [aquí](https://github.com/rrwick/Filtlong).
+
+Vamos a eliminar el 5 % inferior de las lecturas fastq peores.
 
 ```{bash, eval=FALSE}
 mkdir 2025_Demo_Assembly/2_filter
@@ -133,4 +137,23 @@ mkdir 2025_Demo_Assembly/2_filter
 filtlong \
 --keep_percent 95 \
 data/SRR30483153.fastq | gzip > 2_filter/SRR30483153.fastq.gz
+```
+
+# 3. Crear un boceto aproximado del ensamblaje
+
+Para este punto vamos a utilizar [`minimap2`](https://github.com/lh3/minimap2?tab=readme-ov-file#install) y [`miniasm`](https://github.com/lh3/miniasm), lo puedes instalar dando clic a sus respectivos nombres.
+
+Vamos a utilizar `minimap2` para realizar un alineamiento "todo contra todo" (all-vs-all) de las lecturas en un archivo FASTQ contra sí mismo. El objetivo es identificar sobrepasos (overlaps) entre lecturas largas y ruidosas, que son esenciales para el ensamblaje de novo. Los resultados se comprimen y guardan en un archivo `PAF` (Pairwise mApping Format), que es un formato tabular simple para almacenar alineamientos.
+
+Y `miniasm` para ensamblar un grafo de sobrepasos (overlap graph) a partir de los alineamientos generados en el paso anterior y las lecturas originales. Miniasm es un ensamblador ultra-rápido basado en Overlap-Layout-Consensus (OLC), optimizado para lecturas largas y ruidosas. No corrige errores ni pule el ensamblaje; produce un borrador crudo en formato `GFA` (Graphical Fragment Assembly), que representa el genoma como un grafo (nodos = lecturas, aristas = sobrepasos).
+
+```{bash, eval=FALSE}
+bin/minimap2/minimap2 \
+-x ava-pb -t 6 \
+2_filter/SRR30483153.fastq.gz 2_filter/SRR30483153.fastq.gz | gzip -1 > 3_miniasm/SRR30483153.paf.gz
+```
+
+```{bash, eval=FALSE}
+bin/miniasm/miniasm \
+-f 2_filter/SRR30483153.fastq.gz 3_miniasm/SRR30483153.paf.gz > 3_miniasm/SRR30483153.gfa
 ```

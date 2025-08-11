@@ -92,8 +92,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#lecturas-cortas-con-fastqc" id="toc-lecturas-cortas-con-fastqc" class="nav-link" data-scroll-target="#lecturas-cortas-con-fastqc"><strong>Lecturas cortas con FastQC</strong></a></li>
   </ul></li>
   <li><a href="#nanoplot" id="toc-nanoplot" class="nav-link" data-scroll-target="#nanoplot">NanoPlot</a></li>
-  <li><a href="#filtrado-de-lecturas-largas" id="toc-filtrado-de-lecturas-largas" class="nav-link" data-scroll-target="#filtrado-de-lecturas-largas">Filtrado de lecturas largas</a></li>
   </ul></li>
+  <li><a href="#filtrado-de-lecturas-largas" id="toc-filtrado-de-lecturas-largas" class="nav-link" data-scroll-target="#filtrado-de-lecturas-largas">2. Filtrado de lecturas largas</a></li>
+  <li><a href="#crear-un-boceto-aproximado-del-ensamblaje" id="toc-crear-un-boceto-aproximado-del-ensamblaje" class="nav-link" data-scroll-target="#crear-un-boceto-aproximado-del-ensamblaje">3. Crear un boceto aproximado del ensamblaje</a></li>
   </ul>
 </nav>
 </div>
@@ -139,6 +140,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> bin/</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> data/</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p><strong>IMPORTANTE ⚠️</strong>: Todas las herramientas que se vayan instalando se van a alojar en el directorio <code>2025_Demo_Assembly/bin</code>.</p>
 <p>Para cada pasó se irá generando un carpeta dentro del directorio <code>2025_Demo_Assembly</code>.</p>
 <section id="obtención-de-lecturas" class="level2">
 <h2 class="anchored" data-anchor-id="obtención-de-lecturas">Obtención de lecturas</h2>
@@ -234,9 +236,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 </section>
-<section id="filtrado-de-lecturas-largas" class="level2">
-<h2 class="anchored" data-anchor-id="filtrado-de-lecturas-largas">Filtrado de lecturas largas</h2>
+</section>
+<section id="filtrado-de-lecturas-largas" class="level1">
+<h1>2. Filtrado de lecturas largas</h1>
 <p>Una herramienta que nos permite filtrar lecturas largas de alta calidad y de gran longitud es <code>FitLong</code>, lo puedes descargar e instalar <a href="https://github.com/rrwick/Filtlong">aquí</a>.</p>
+<p>Vamos a eliminar el 5 % inferior de las lecturas fastq peores.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/2_filter</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -245,6 +249,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>data/SRR30483153.fastq <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span> 2_filter/SRR30483153.fastq.gz</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
+<section id="crear-un-boceto-aproximado-del-ensamblaje" class="level1">
+<h1>3. Crear un boceto aproximado del ensamblaje</h1>
+<p>Para este punto vamos a utilizar <a href="https://github.com/lh3/minimap2?tab=readme-ov-file#install"><code>minimap2</code></a> y <a href="https://github.com/lh3/miniasm"><code>miniasm</code></a>, lo puedes instalar dando clic a sus respectivos nombres.</p>
+<p>Vamos a utilizar <code>minimap2</code> para realizar un alineamiento “todo contra todo” (all-vs-all) de las lecturas en un archivo FASTQ contra sí mismo. El objetivo es identificar sobrepasos (overlaps) entre lecturas largas y ruidosas, que son esenciales para el ensamblaje de novo. Los resultados se comprimen y guardan en un archivo <code>PAF</code> (Pairwise mApping Format), que es un formato tabular simple para almacenar alineamientos.</p>
+<p>Y <code>miniasm</code> para ensamblar un grafo de sobrepasos (overlap graph) a partir de los alineamientos generados en el paso anterior y las lecturas originales. Miniasm es un ensamblador ultra-rápido basado en Overlap-Layout-Consensus (OLC), optimizado para lecturas largas y ruidosas. No corrige errores ni pule el ensamblaje; produce un borrador crudo en formato <code>GFA</code> (Graphical Fragment Assembly), que representa el genoma como un grafo (nodos = lecturas, aristas = sobrepasos).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bin/minimap2/minimap2</span> <span class="dt">\</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>-x ava-pb <span class="at">-t</span> 6 <span class="dt">\</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>2_filter/SRR30483153.fastq.gz 2_filter/SRR30483153.fastq.gz <span class="kw">|</span> <span class="fu">gzip</span> <span class="at">-1</span> <span class="op">&gt;</span> 3_miniasm/SRR30483153.paf.gz</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bin/miniasm/miniasm</span> <span class="dt">\</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>-f 2_filter/SRR30483153.fastq.gz 3_miniasm/SRR30483153.paf.gz <span class="op">&gt;</span> 3_miniasm/SRR30483153.gfa</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 
 </main>
