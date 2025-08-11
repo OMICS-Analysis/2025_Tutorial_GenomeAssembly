@@ -128,9 +128,12 @@ window.Quarto = {
   <li><a href="#ensamble-de-lecturas-largas" id="toc-ensamble-de-lecturas-largas" class="nav-link" data-scroll-target="#ensamble-de-lecturas-largas">5. Ensamble de lecturas largas</a></li>
   <li><a href="#pulido" id="toc-pulido" class="nav-link" data-scroll-target="#pulido">6. Pulido</a>
   <ul class="collapse">
+  <li><a href="#pulido-con-lecturas-cortas" id="toc-pulido-con-lecturas-cortas" class="nav-link" data-scroll-target="#pulido-con-lecturas-cortas">Pulido con lecturas cortas</a></li>
   <li><a href="#bwa" id="toc-bwa" class="nav-link" data-scroll-target="#bwa">bwa</a></li>
   <li><a href="#polypolish" id="toc-polypolish" class="nav-link" data-scroll-target="#polypolish">Polypolish</a></li>
+  <li><a href="#pulido-con-lecturas-largas" id="toc-pulido-con-lecturas-largas" class="nav-link" data-scroll-target="#pulido-con-lecturas-largas">Pulido con lecturas largas</a></li>
   </ul></li>
+  <li><a href="#calidad-del-ensamble" id="toc-calidad-del-ensamble" class="nav-link" data-scroll-target="#calidad-del-ensamble">Calidad del ensamble</a></li>
   </ul>
 </nav>
 </div>
@@ -533,8 +536,11 @@ window.Quarto = {
 </section>
 <section id="pulido" class="level1">
 <h1>6. Pulido</h1>
+<section id="pulido-con-lecturas-cortas" class="level2">
+<h2 class="anchored" data-anchor-id="pulido-con-lecturas-cortas">Pulido con lecturas cortas</h2>
 <p>Ahora vamos a pulir el ensamblaje de lecturas largas generado por <code>Flye</code> con lecturas cortas Illumina <code>.fastq</code> utilizando <code>Polypolish v0.6.0</code>, lo que da como resultado un nuevo archivo de ensamblaje híbrido pulido <code>.fasta</code>, esta herramienta la puedes descargar <a href="https://github.com/rrwick/Polypolish/wiki/Installation">aquí</a>.</p>
 <p>Para ello también vamos a necesitar instalar un alienador de lecturas cortas <code>bwa</code>, <a href="https://github.com/lh3/bwa">aquí</a> lo puedes descargar.</p>
+</section>
 <section id="bwa" class="level2">
 <h2 class="anchored" data-anchor-id="bwa">bwa</h2>
 <div class="cell">
@@ -571,6 +577,27 @@ window.Quarto = {
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>6_polypolish/filtered_2.sam <span class="op">&gt;</span> 6_polypolish/polished.fasta</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
+<section id="pulido-con-lecturas-largas" class="level2">
+<h2 class="anchored" data-anchor-id="pulido-con-lecturas-largas">Pulido con lecturas largas</h2>
+<p>Para pulir un ensamble con lecturas largas se puede utilizar la herramienta <code>medaka</code>, se recomienda instalarlo como ambiente <code>conda</code>, lo puedes descargar <a href="https://github.com/nanoporetech/medaka">aquí</a>.</p>
+<p><strong>NOTA</strong> 🔧: Puedes ensamblar con lecturas cortas y pulir con lecturas largas. Para fines de este tutorial vamos a utilizar el emsamble que ya hicimos con lecturas largas, solo con fines demostrativos.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> create <span class="at">-n</span> medaka <span class="at">-c</span> conda-forge <span class="at">-c</span> nanoporetech <span class="at">-c</span> bioconda medaka</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate medaka</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">medaka_consensus</span> <span class="dt">\</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>-i 4_downsample_SRR30483153_weighted/reads_approx_100x.weighted.fastq.gz <span class="dt">\</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>-d 5_flye/assembly.fasta <span class="dt">\</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>-o medaka_consensus <span class="dt">\</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>-t 6</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="calidad-del-ensamble" class="level1">
+<h1>Calidad del ensamble</h1>
 </section>
 
 </main>

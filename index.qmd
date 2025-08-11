@@ -398,6 +398,8 @@ flye \
 
 # 6. Pulido
 
+## Pulido con lecturas cortas
+
 Ahora vamos a pulir el ensamblaje de lecturas largas generado por `Flye` con lecturas cortas Illumina `.fastq` utilizando `Polypolish v0.6.0`, lo que da como resultado un nuevo archivo de ensamblaje híbrido pulido `.fasta`, esta herramienta la puedes descargar [aquí](https://github.com/rrwick/Polypolish/wiki/Installation).
 
 Para ello también vamos a necesitar instalar un alienador de lecturas cortas `bwa`, [aquí](https://github.com/lh3/bwa) lo puedes descargar.
@@ -442,3 +444,27 @@ mkdir 2025_Demo_Assembly/6_polypolish
 6_polypolish/filtered_1.sam \
 6_polypolish/filtered_2.sam > 6_polypolish/polished.fasta
 ```
+
+## Pulido con lecturas largas
+
+Para pulir un ensamble con lecturas largas se puede utilizar la herramienta `medaka`, se recomienda instalarlo como ambiente `conda`, lo puedes descargar [aquí](https://github.com/nanoporetech/medaka).
+
+**NOTA** 🔧: Puedes ensamblar con lecturas cortas y pulir con lecturas largas. Para fines de este tutorial vamos a utilizar el emsamble que ya hicimos con lecturas largas, solo con fines demostrativos.
+
+```{bash, eval=FALSE}
+conda create -n medaka -c conda-forge -c nanoporetech -c bioconda medaka
+```
+
+```{bash, eval=FALSE}
+conda activate medaka
+```
+
+```{bash, eval=FALSE}
+medaka_consensus \
+-i 4_downsample_SRR30483153_weighted/reads_approx_100x.weighted.fastq.gz \
+-d 5_flye/assembly.fasta \
+-o medaka_consensus \
+-t 6
+```
+
+# Calidad del ensamble
