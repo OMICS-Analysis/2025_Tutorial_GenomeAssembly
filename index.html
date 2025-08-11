@@ -96,7 +96,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#filtrado-de-lecturas-largas" id="toc-filtrado-de-lecturas-largas" class="nav-link" data-scroll-target="#filtrado-de-lecturas-largas">2. Filtrado de lecturas largas</a></li>
   <li><a href="#crear-un-boceto-aproximado-del-ensamblaje" id="toc-crear-un-boceto-aproximado-del-ensamblaje" class="nav-link" data-scroll-target="#crear-un-boceto-aproximado-del-ensamblaje">3. Crear un boceto aproximado del ensamblaje</a></li>
   <li><a href="#re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x." id="toc-re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x." class="nav-link" data-scroll-target="#re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x.">4. Re-muestrear la resolución de las lecturas a una cobertura de ~100x.</a></li>
-  <li><a href="#tutorial-breve-muestreo-ponderado-de-lecturas-fastq-para-ensamblaje-genómico" id="toc-tutorial-breve-muestreo-ponderado-de-lecturas-fastq-para-ensamblaje-genómico" class="nav-link" data-scroll-target="#tutorial-breve-muestreo-ponderado-de-lecturas-fastq-para-ensamblaje-genómico">Tutorial Breve: Muestreo Ponderado de Lecturas FASTQ para Ensamblaje Genómico</a></li>
   </ul>
 </nav>
 </div>
@@ -268,12 +267,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="re-muestrear-la-resolución-de-las-lecturas-a-una-cobertura-de-100x." class="level1">
 <h1>4. Re-muestrear la resolución de las lecturas a una cobertura de ~100x.</h1>
-<p>Para este paso necesitamos generar código que nos permita re-muestrear basado en la cobertura y la calidad de las lecturas largas.</p>
-<p>Primero vamos a generar un código en Python que nos ayudará a lograr, llamaremos a este archivo <code>weighted_downsample.py</code></p>
-<p>Thought for 58s</p>
-</section>
-<section id="tutorial-breve-muestreo-ponderado-de-lecturas-fastq-para-ensamblaje-genómico" class="level1">
-<h1>Tutorial Breve: Muestreo Ponderado de Lecturas FASTQ para Ensamblaje Genómico</h1>
 <p>Este tutorial explica concisamente dos scripts: un Python para muestreo ponderado de lecturas largas basado en calidad, y un Bash para preparar y ejecutar dicho muestreo ajustado a cobertura objetivo (e.g., 100x) en un ensamblaje.</p>
 <p>Este script realiza un <strong>muestreo aleatorio ponderado sin reemplazo</strong> de lecturas FASTQ para reducir a un número objetivo de bases (–target-bases), priorizando lecturas largas y de alta calidad. Usa pesos = longitud * (calidad_media + 1)^–qpower (default 2). Preserva lecturas específicas via –keep-ids. Es eficiente para datasets grandes, usando temporales y sort externo.</p>
 <div class="cell">
@@ -478,15 +471,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'NR==FNR{a[$1]; next} !/^@/ &amp;&amp; ($3 in a){ print $1 }'</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/small_contigs.txt"</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/mappings.sam"</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-u</span> <span class="op">&gt;</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/keep_ids.txt"</span></span>
 <span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"Keep IDs: </span><span class="va">$(</span><span class="fu">wc</span> <span class="at">-l</span> <span class="op">&lt;</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/keep_ids.txt"</span><span class="va">)</span><span class="st">"</span></span>
 <span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># ejecutar el script</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> weighted_downsample.py <span class="dt">\</span></span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">--reads</span> <span class="st">"</span><span class="va">$READS</span><span class="st">"</span> <span class="dt">\</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">--target-bases</span> <span class="st">"</span><span class="va">$TARGET_BASES</span><span class="st">"</span> <span class="dt">\</span></span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">--out</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/reads_approx_</span><span class="va">${TARGET_COV}</span><span class="st">x.weighted.fastq.gz"</span> <span class="dt">\</span></span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">--tmpdir</span> <span class="st">"</span><span class="va">$TMP</span><span class="st">"</span> <span class="dt">\</span></span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">--qpower</span> 2.0 <span class="dt">\</span></span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 42 <span class="dt">\</span></span>
-<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">--keep-ids</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/keep_ids.txt"</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> weighted_downsample.py <span class="dt">\</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">--reads</span> <span class="st">"</span><span class="va">$READS</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">--target-bases</span> <span class="st">"</span><span class="va">$TARGET_BASES</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">--out</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/reads_approx_</span><span class="va">${TARGET_COV}</span><span class="st">x.weighted.fastq.gz"</span> <span class="dt">\</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">--tmpdir</span> <span class="st">"</span><span class="va">$TMP</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">--qpower</span> 2.0 <span class="dt">\</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 42 <span class="dt">\</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">--keep-ids</span> <span class="st">"</span><span class="va">$OUTDIR</span><span class="st">/keep_ids.txt"</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 
