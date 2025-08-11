@@ -80,8 +80,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Tabla de contenidos</h2>
    
   <ul>
-  <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">Introducción</a></li>
-  <li><a href="#obtención-de-lecturas" id="toc-obtención-de-lecturas" class="nav-link" data-scroll-target="#obtención-de-lecturas">1. Obtención de lecturas</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">Introducción</a>
+  <ul class="collapse">
+  <li><a href="#obtención-de-lecturas" id="toc-obtención-de-lecturas" class="nav-link" data-scroll-target="#obtención-de-lecturas">Obtención de lecturas</a></li>
+  </ul></li>
+  <li><a href="#control-de-calidad" id="toc-control-de-calidad" class="nav-link" data-scroll-target="#control-de-calidad">1. Control de Calidad</a></li>
   </ul>
 </nav>
 </div>
@@ -128,15 +131,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> data/</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Para cada pasó se irá generando un carpeta dentro del directorio <code>2025_Demo_Assembly</code>.</p>
-</section>
-<section id="obtención-de-lecturas" class="level1">
-<h1>1. Obtención de lecturas</h1>
+<section id="obtención-de-lecturas" class="level2">
+<h2 class="anchored" data-anchor-id="obtención-de-lecturas">Obtención de lecturas</h2>
 <p>En este paso vamos a utilizar <code>sratoolkit</code>, lo puedes descargar <a href="https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit">aquí</a> según sea tu sistema operativo.</p>
 <p>Los datos los vamos a descargar del BioProject <a href="https://www.ncbi.nlm.nih.gov/bioproject?LinkName=sra_bioproject&amp;from_uid=34977980"><code>PRJNA1148956</code></a> <strong>“Comparative study of Illumina and Nanopore sequencing for Clostridioides difficile surveillance”</strong>. Para fines demostrativos vamos a descargar lecturas largas (Nanopore) y lecturas cortas pareadas (Ilumina).</p>
 <p>Para hacerlo usa el siguiente código en la terminal:</p>
 <p><strong>Lecturas largas</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> data</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> 2025_Demo_Assembly/data</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">prefetch</span> SRR30483153</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">fasterq-dump</span> SRR30483153</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -145,6 +147,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> data</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">prefetch</span> SRR30483121</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">fasterq-dump</span> SRR30483121</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Con esto obtendremos los archivos <code>.fastq</code> de las lecturas con su respectiva puntuación <code>Phred</code>.</p>
+</section>
+</section>
+<section id="control-de-calidad" class="level1">
+<h1>1. Control de Calidad</h1>
+<p>Para observar la calidad de nuestras secuencias vamos a utilizar <a href="https://www.bioinformatics.babraham.ac.uk/projects/fastqc/"><code>FastQC</code></a> (generalmente usado para lecturas cortas) y <a href="https://github.com/wdecoster/NanoPlot"><code>NanoPlot</code></a> (óptimo para lecturas largas), al hacer click en cada palabra podrás acceder al sitio para poder descargarlos e instalarlos. <code>FastQC</code> nos mostrará los resultados de calidad en un reporte <code>HTML</code> interactivo, y <code>NanoPlot</code> generá graficos en <code>.png</code> de las medidas de calidad.</p>
+<p>Para ejecutar las herramientas usa los siguientes códigos en la terminal:</p>
+<p>Primero generamos las carpetas para depositar los resultados</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/1_fastaQC/fastQC</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/1_fastQC/NanoPlot</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>FastQC</strong></p>
+<p>Al ejecutar fastqc se abrirá una interfaz gráfica donde podremos introducir nuestras secuencias.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fastqc</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Lecturas largas con FastQC</strong></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/ONT_fastqc.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p><strong>Lecturas cortas con FastQC</strong></p>
+<p>Forward</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/f_fastqc.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Reverse</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/r_fastqc.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
 </div>
 </section>
 

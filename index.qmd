@@ -30,7 +30,7 @@ Para todos los procesos se generó un directorio con la siguiente estructura:
 
 Para cada pasó se irá generando un carpeta dentro del directorio `2025_Demo_Assembly`.
 
-# 1. Obtención de lecturas
+## Obtención de lecturas
 
 En este paso vamos a utilizar `sratoolkit`, lo puedes descargar [aquí](https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit) según sea tu sistema operativo.
 
@@ -41,7 +41,7 @@ Para hacerlo usa el siguiente código en la terminal:
 **Lecturas largas**
 
 ```{bash, eval=FALSE}
-cd data
+cd 2025_Demo_Assembly/data
 prefetch SRR30483153
 fasterq-dump SRR30483153
 ```
@@ -53,3 +53,40 @@ cd data
 prefetch SRR30483121
 fasterq-dump SRR30483121
 ```
+
+Con esto obtendremos los archivos `.fastq` de las lecturas con su respectiva puntuación `Phred`.
+
+# 1. Control de Calidad
+
+Para observar la calidad de nuestras secuencias vamos a utilizar [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) (generalmente usado para lecturas cortas) y [`NanoPlot`](https://github.com/wdecoster/NanoPlot) (óptimo para lecturas largas), al hacer click en cada palabra podrás acceder al sitio para poder descargarlos e instalarlos. `FastQC` nos mostrará los resultados de calidad en un reporte `HTML` interactivo, y `NanoPlot` generá graficos en `.png` de las medidas de calidad.
+
+Para ejecutar las herramientas usa los siguientes códigos en la terminal:
+
+Primero generamos las carpetas para depositar los resultados
+
+```{bash, eval=FALSE}
+mkdir 2025_Demo_Assembly/1_fastaQC/fastQC
+mkdir 2025_Demo_Assembly/1_fastQC/NanoPlot
+```
+
+**FastQC**
+
+Al ejecutar fastqc se abrirá una interfaz gráfica donde podremos introducir nuestras secuencias.
+
+```{bash, eval=FALSE}
+fastqc
+```
+
+**Lecturas largas con FastQC**
+
+![](images/ONT_fastqc.png){fig-align="center"}
+
+**Lecturas cortas con FastQC**
+
+Forward
+
+![](images/f_fastqc.png){fig-align="center"}
+
+Reverse
+
+![](images/r_fastqc.png){fig-align="center"}
