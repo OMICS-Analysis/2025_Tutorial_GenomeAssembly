@@ -69,7 +69,7 @@ mkdir 2025_Demo_Assembly/1_fastaQC/fastQC
 mkdir 2025_Demo_Assembly/1_fastQC/NanoPlot
 ```
 
-**FastQC**
+## **FastQC**
 
 Al ejecutar fastqc se abrirá una interfaz gráfica donde podremos introducir nuestras secuencias.
 
@@ -77,11 +77,11 @@ Al ejecutar fastqc se abrirá una interfaz gráfica donde podremos introducir nu
 fastqc
 ```
 
-**Lecturas largas con FastQC**
+### **Lecturas largas con FastQC**
 
 ![](images/ONT_fastqc.png){fig-align="center"}
 
-**Lecturas cortas con FastQC**
+### **Lecturas cortas con FastQC**
 
 Forward
 
@@ -90,3 +90,35 @@ Forward
 Reverse
 
 ![](images/r_fastqc.png){fig-align="center"}
+
+## NanoPlot
+
+Lecturas largas
+
+```{bash, eval=FALSE}
+NanoPlot \
+-t 6 \
+--fastq data/SRR30483153.fastq \
+--verbose \
+--store \
+-o 1_fastQC/NanoPlot/nanopore \
+--tsv_stats \
+--info_in_report
+```
+
+![](images/ONT_LengthvsQualityScatterPlot_kde.png){fig-align="center"}
+
+Lecturas cortas
+
+```{bash, eval=FALSE}
+NanoPlot \
+-t 6 \
+--fastq data/SRR30483121_1.fastq data/SRR30483121_2.fastq \
+--verbose \
+--store \
+-o 1_fastaQC/NanoPlot/ilumina \
+--tsv_stats \
+--info_in_report
+```
+
+![](images/ilumina_LengthvsQualityScatterPlot_kde.png){fig-align="center"}

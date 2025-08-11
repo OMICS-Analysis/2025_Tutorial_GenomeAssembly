@@ -84,7 +84,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#obtención-de-lecturas" id="toc-obtención-de-lecturas" class="nav-link" data-scroll-target="#obtención-de-lecturas">Obtención de lecturas</a></li>
   </ul></li>
-  <li><a href="#control-de-calidad" id="toc-control-de-calidad" class="nav-link" data-scroll-target="#control-de-calidad">1. Control de Calidad</a></li>
+  <li><a href="#control-de-calidad" id="toc-control-de-calidad" class="nav-link" data-scroll-target="#control-de-calidad">1. Control de Calidad</a>
+  <ul class="collapse">
+  <li><a href="#fastqc" id="toc-fastqc" class="nav-link" data-scroll-target="#fastqc"><strong>FastQC</strong></a>
+  <ul class="collapse">
+  <li><a href="#lecturas-largas-con-fastqc" id="toc-lecturas-largas-con-fastqc" class="nav-link" data-scroll-target="#lecturas-largas-con-fastqc"><strong>Lecturas largas con FastQC</strong></a></li>
+  <li><a href="#lecturas-cortas-con-fastqc" id="toc-lecturas-cortas-con-fastqc" class="nav-link" data-scroll-target="#lecturas-cortas-con-fastqc"><strong>Lecturas cortas con FastQC</strong></a></li>
+  </ul></li>
+  <li><a href="#nanoplot" id="toc-nanoplot" class="nav-link" data-scroll-target="#nanoplot">NanoPlot</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -160,18 +168,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/1_fastaQC/fastQC</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> 2025_Demo_Assembly/1_fastQC/NanoPlot</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><strong>FastQC</strong></p>
+<section id="fastqc" class="level2">
+<h2 class="anchored" data-anchor-id="fastqc"><strong>FastQC</strong></h2>
 <p>Al ejecutar fastqc se abrirá una interfaz gráfica donde podremos introducir nuestras secuencias.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fastqc</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><strong>Lecturas largas con FastQC</strong></p>
+<section id="lecturas-largas-con-fastqc" class="level3">
+<h3 class="anchored" data-anchor-id="lecturas-largas-con-fastqc"><strong>Lecturas largas con FastQC</strong></h3>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/ONT_fastqc.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
-<p><strong>Lecturas cortas con FastQC</strong></p>
+</section>
+<section id="lecturas-cortas-con-fastqc" class="level3">
+<h3 class="anchored" data-anchor-id="lecturas-cortas-con-fastqc"><strong>Lecturas cortas con FastQC</strong></h3>
 <p>Forward</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -184,6 +196,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="images/r_fastqc.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
+</section>
+</section>
+<section id="nanoplot" class="level2">
+<h2 class="anchored" data-anchor-id="nanoplot">NanoPlot</h2>
+<p>Lecturas largas</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">NanoPlot</span> <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>-t 6 <span class="dt">\</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>--fastq data/SRR30483153.fastq <span class="dt">\</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>--verbose <span class="dt">\</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>--store <span class="dt">\</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>-o 1_fastQC/NanoPlot/nanopore <span class="dt">\</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>--tsv_stats <span class="dt">\</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>--info_in_report</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/ONT_LengthvsQualityScatterPlot_kde.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Lecturas cortas</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">NanoPlot</span> <span class="dt">\</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>-t 6 <span class="dt">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>--fastq data/SRR30483121_1.fastq data/SRR30483121_2.fastq <span class="dt">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>--verbose <span class="dt">\</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>--store <span class="dt">\</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>-o 1_fastaQC/NanoPlot/ilumina <span class="dt">\</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>--tsv_stats <span class="dt">\</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>--info_in_report</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/ilumina_LengthvsQualityScatterPlot_kde.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+</section>
 </section>
 
 </main>
