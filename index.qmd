@@ -160,7 +160,9 @@ bin/miniasm/miniasm \
 
 # 4. Re-muestrear la resolución de las lecturas a una cobertura de \~100x.
 
-Este tutorial explica concisamente dos scripts: un Python para muestreo ponderado de lecturas largas basado en calidad, y un Bash para preparar y ejecutar dicho muestreo ajustado a cobertura objetivo (e.g., 100x) en un ensamblaje.
+Para este paso necesitamos generar código que nos permita re-muestrear basado en la cobertura y la calidad de las lecturas largas.
+
+Primero vamos a generar un código en Python que nos ayudará a lograr, llamaremos a este archivo `weighted_downsample.py`
 
 Este script realiza un **muestreo aleatorio ponderado sin reemplazo** de lecturas FASTQ para reducir a un número objetivo de bases (--target-bases), priorizando lecturas largas y de alta calidad. Usa pesos = longitud \* (calidad_media + 1)\^--qpower (default 2). Preserva lecturas específicas via --keep-ids. Es eficiente para datasets grandes, usando temporales y sort externo.
 
@@ -368,6 +370,7 @@ awk -v TH="$PLASMID_THRESHOLD" '$2 < TH {print $1}' "$OUTDIR/contig_lengths.tsv"
 awk 'NR==FNR{a[$1]; next} !/^@/ && ($3 in a){ print $1 }' "$OUTDIR/small_contigs.txt" "$OUTDIR/mappings.sam" | sort -u > "$OUTDIR/keep_ids.txt"
 echo "Keep IDs: $(wc -l < "$OUTDIR/keep_ids.txt")"
 
+# ejecutar el script
 python3 weighted_downsample.py \
   --reads "$READS" \
   --target-bases "$TARGET_BASES" \
