@@ -536,6 +536,7 @@ window.Quarto = {
 </section>
 <section id="pulido" class="level1">
 <h1>6. Pulido</h1>
+<p><code>Polypolish</code> corrige inserciones/deleciones (indels) con alineamientos múltiples, mientras <code>Medaka</code> aplica consenso basado en modelos de aprendizaje para pulido final.</p>
 <section id="pulido-con-lecturas-cortas" class="level2">
 <h2 class="anchored" data-anchor-id="pulido-con-lecturas-cortas">Pulido con lecturas cortas</h2>
 <p>Ahora vamos a pulir el ensamblaje de lecturas largas generado por <code>Flye</code> con lecturas cortas Illumina <code>.fastq</code> utilizando <code>Polypolish v0.6.0</code>, lo que da como resultado un nuevo archivo de ensamblaje híbrido pulido <code>.fasta</code>, esta herramienta la puedes descargar <a href="https://github.com/rrwick/Polypolish/wiki/Installation">aquí</a>.</p>
@@ -563,6 +564,7 @@ window.Quarto = {
 </section>
 <section id="polypolish" class="level2">
 <h2 class="anchored" data-anchor-id="polypolish">Polypolish</h2>
+<p>El siguiente código filtra alineamientos SAM (asumidos generados por BWA o similar con lecturas cortas) para retener solo aquellos con múltiples mapeos en extremos de contigs, ideales para corregir indels en regiones repetitivas. Produce SAM filtrados para el pulido.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/Polypolish/target/release/polypolish</span> filter <span class="dt">\</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>--in1 6_polypolish/alignments_1.sam <span class="dt">\</span></span>
@@ -570,6 +572,7 @@ window.Quarto = {
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>--out1 6_polypolish/filtered_1.sam <span class="dt">\</span></span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>--out2 6_polypolish/filtered_2.sam</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Una vez que generamos filtramos, <code>polypolish</code> usa alineamientos filtrados para corregir indels en el borrador de ensamblaje, produciendo un FASTA pulido. Enfocado en correcciones locales basadas en votación de alineamientos.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./bin/Polypolish/target/release/polypolish</span> polish <span class="dt">\</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>5_flye/assembly.fasta <span class="dt">\</span></span>
@@ -580,13 +583,14 @@ window.Quarto = {
 <section id="pulido-con-lecturas-largas" class="level2">
 <h2 class="anchored" data-anchor-id="pulido-con-lecturas-largas">Pulido con lecturas largas</h2>
 <p>Para pulir un ensamble con lecturas largas se puede utilizar la herramienta <code>medaka</code>, se recomienda instalarlo como ambiente <code>conda</code>, lo puedes descargar <a href="https://github.com/nanoporetech/medaka">aquí</a>.</p>
-<p><strong>NOTA</strong> 🔧: Puedes ensamblar con lecturas cortas y pulir con lecturas largas. Para fines de este tutorial vamos a utilizar el emsamble que ya hicimos con lecturas largas, solo con fines demostrativos.</p>
+<p><strong>NOTA</strong> 🔧: Puedes ensamblar con lecturas cortas y pulir con lecturas largas. Para fines de este tutorial vamos a utilizar el emsamble que ya hicimos con lecturas largas, solo con fines de encontrar consensos.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> create <span class="at">-n</span> medaka <span class="at">-c</span> conda-forge <span class="at">-c</span> nanoporetech <span class="at">-c</span> bioconda medaka</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate medaka</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p><code>Medaka</code> genera un consenso pulido usando modelos de deep learning (RNN) para corregir errores en lecturas largas alineadas al borrador. Produce FASTA pulido en directorio de salida, enfocado en Nanopore/PacBio.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">medaka_consensus</span> <span class="dt">\</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>-i 4_downsample_SRR30483153_weighted/reads_approx_100x.weighted.fastq.gz <span class="dt">\</span></span>

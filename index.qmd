@@ -398,6 +398,8 @@ flye \
 
 # 6. Pulido
 
+`Polypolish` corrige inserciones/deleciones (indels) con alineamientos múltiples, mientras `Medaka` aplica consenso basado en modelos de aprendizaje para pulido final.
+
 ## Pulido con lecturas cortas
 
 Ahora vamos a pulir el ensamblaje de lecturas largas generado por `Flye` con lecturas cortas Illumina `.fastq` utilizando `Polypolish v0.6.0`, lo que da como resultado un nuevo archivo de ensamblaje híbrido pulido `.fasta`, esta herramienta la puedes descargar [aquí](https://github.com/rrwick/Polypolish/wiki/Installation).
@@ -430,6 +432,8 @@ mkdir 2025_Demo_Assembly/6_polypolish
 
 ## Polypolish
 
+El siguiente código filtra alineamientos SAM (asumidos generados por BWA o similar con lecturas cortas) para retener solo aquellos con múltiples mapeos en extremos de contigs, ideales para corregir indels en regiones repetitivas. Produce SAM filtrados para el pulido.
+
 ```{bash, eval=FALSE}
 ./bin/Polypolish/target/release/polypolish filter \
 --in1 6_polypolish/alignments_1.sam \
@@ -437,6 +441,8 @@ mkdir 2025_Demo_Assembly/6_polypolish
 --out1 6_polypolish/filtered_1.sam \
 --out2 6_polypolish/filtered_2.sam
 ```
+
+Una vez que generamos filtramos, `polypolish` usa alineamientos filtrados para corregir indels en el borrador de ensamblaje, produciendo un FASTA pulido. Enfocado en correcciones locales basadas en votación de alineamientos.
 
 ```{bash, eval=FALSE}
 ./bin/Polypolish/target/release/polypolish polish \
@@ -449,7 +455,7 @@ mkdir 2025_Demo_Assembly/6_polypolish
 
 Para pulir un ensamble con lecturas largas se puede utilizar la herramienta `medaka`, se recomienda instalarlo como ambiente `conda`, lo puedes descargar [aquí](https://github.com/nanoporetech/medaka).
 
-**NOTA** 🔧: Puedes ensamblar con lecturas cortas y pulir con lecturas largas. Para fines de este tutorial vamos a utilizar el emsamble que ya hicimos con lecturas largas, solo con fines demostrativos.
+**NOTA** 🔧: Puedes ensamblar con lecturas cortas y pulir con lecturas largas. Para fines de este tutorial vamos a utilizar el emsamble que ya hicimos con lecturas largas, solo con fines de encontrar consensos.
 
 ```{bash, eval=FALSE}
 conda create -n medaka -c conda-forge -c nanoporetech -c bioconda medaka
@@ -458,6 +464,8 @@ conda create -n medaka -c conda-forge -c nanoporetech -c bioconda medaka
 ```{bash, eval=FALSE}
 conda activate medaka
 ```
+
+`Medaka` genera un consenso pulido usando modelos de deep learning (RNN) para corregir errores en lecturas largas alineadas al borrador. Produce FASTA pulido en directorio de salida, enfocado en Nanopore/PacBio.
 
 ```{bash, eval=FALSE}
 medaka_consensus \
