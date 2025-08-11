@@ -58,7 +58,7 @@ fasterq-dump SRR30483121
 
 Con esto obtendremos los archivos `.fastq` de las lecturas con su respectiva puntuación `Phred`.
 
-# 1. Control de Calidad
+# 1. Control de calidad de lecturas
 
 Para observar la calidad de nuestras secuencias vamos a utilizar [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) (generalmente usado para lecturas cortas) y [`NanoPlot`](https://github.com/wdecoster/NanoPlot) (óptimo para lecturas largas), al hacer click en cada palabra podrás acceder al sitio para poder descargarlos e instalarlos. `FastQC` nos mostrará los resultados de calidad en un reporte `HTML` interactivo, y `NanoPlot` generá graficos en `.png` de las medidas de calidad.
 
