@@ -477,6 +477,8 @@ medaka_consensus \
 
 # 7. Calidad del ensamble
 
-```{bash}
+```{bash, eval=FALSE}
 
 ```
+
+# Extra: Bandage
