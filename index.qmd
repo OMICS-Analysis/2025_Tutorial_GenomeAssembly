@@ -482,3 +482,5 @@ medaka_consensus \
 ```
 
 # Extra: Bandage
+
+![](images/bandage.png){fig-align="center"}
