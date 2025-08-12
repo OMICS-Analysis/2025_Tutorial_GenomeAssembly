@@ -396,6 +396,12 @@ flye \
 --threads 6
 ```
 
+```{r, echo=FALSE, message=FALSE}
+df <- readr::read_tsv("tables/assembly_info.txt")
+
+gt::gt(df)
+```
+
 # 6. Pulido
 
 `Polypolish` corrige inserciones/deleciones (indels) con alineamientos múltiples, mientras `Medaka` aplica consenso basado en modelos de aprendizaje para pulido final.
@@ -527,7 +533,7 @@ Para calcular el Average Nucleotide Identity (ANI) vamos a utilizar la herramien
 -o 7_assemblyQC/fastani.txt
 ```
 
-Genera un este resultado:
+Genera este resultado:
 
 ```{r, echo=FALSE, message=FALSE}
 df <- readr::read_tsv("tables/fastani.txt", col_names = c("Query Assembly", "Reference", "ANI", "Fragmentos alineado", "Total de Fragmentos"))
@@ -536,6 +542,12 @@ gt::gt(df)
 ```
 
 ## CheckM
+
+Otra herramienta para obtener metricas de calidad del esamble es CheckM. Puedes descargarlo [aquí](https://github.com/Ecogenomics/CheckM/wiki/Installation#how-to-install-checkm).
+
+```{bash, eval=FALSE}
+conda activate checkm
+```
 
 # Extra: Bandage
 
